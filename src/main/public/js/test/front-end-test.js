@@ -309,14 +309,16 @@ $(function () {
       ]))
     );
     
-    ok(
-      spectralCore.util.gaussianElimination($M([
+    var testGauss = spectralCore.util.gaussianElimination($M([
         [2, -3, -1, 2, 3],
         [0, 2, 1, 0, 5],
         [0, -2, -1, 0, -4],
         [0, 0, 0, 0, 0],
         [0, 2, 1, 0, 4]
-      ]))
+      ]));
+    
+    ok(
+      testGauss
       .eql($M([
         [2, -3, -1, 2, 3],
         [0, 2, 1, 0, 5],
@@ -324,13 +326,7 @@ $(function () {
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0]
       ])),
-      "got " + spectralCore.util.gaussianElimination($M([
-        [2, -3, -1, 2, 3],
-        [0, 2, 1, 0, 5],
-        [0, -2, -1, 0, -4],
-        [0, 0, 0, 0, 0],
-        [0, 2, 1, 0, 4]
-      ])).inspect()
+      "got " + testGauss.inspect()
     );
   });
   

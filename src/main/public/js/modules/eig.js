@@ -19,40 +19,54 @@ $(function () {
     return diagonalMultiplicities;
   };
   
-  // Returns a reduced-row echalon form of the given matrix
-  spectralCore.util.gaussianElimination = function (matrix) {
-    // Begin by iterating through each column and finding the max abs value
-    for (var k = 1; k <= matrix.cols(); k++) {
-      // Find the pivot for column k
-      var columnPivot = 0,
-          pivotMax = 0;
-      for (var n = k; n <= matrix.rows(); n++) {
-        var columnEntry = matrix.e(n, k);
-        if (Math.abs(columnEntry) >= pivotMax) {
-          pivotMax = Math.abs(columnEntry);
-          columnPivot = n;
+  // Helper function to find the position of the first non-zero
+  // element in an array; [0, 0] if otherwise no position
+  spectralCore.matrix.firstNonZero = function (matrix) {
+    for (var i = 1; i <= matrix.rows(); i++) {
+      for (var j = 1; j <= matrix.cols(); j++) {
+        if (matrix.e(i, j)) {
+          return [i, j];
         }
       }
-      // If our columnPivot was 0, then find the next pivot,
-      // otherwise we continue the elimination with given pivot
-      if (columnPivot) {
-        // Swap the current row with the pivot index row
-        matrix.swapRows(k, columnPivot);
-        
-        // For each row below the pivot, use pivot to annihilate column entries
-        for (var i = 1; i <= matrix.rows(); i++) {
-          if (i !== k) {
-            for (var j = k; j <= matrix.cols(); j++) {
-              var elementValue = matrix.e(i, j) - matrix.e(k, j) * (matrix.e(i, k) / matrix.e(k, k));
-              matrix.setElement(i, j, elementValue);
+    }
+    return [0, 0];
+  };
+  
+  // Transform an upper triangular matrix into reduced ro echelon form
+  // using Gaussian elimination
+  spectralCore.util.gaussianElimination = function (matrix) {
+    console.warn("\n--------NEW RUN!--------")
+    for (var currentRow = 1; currentRow <= matrix.rows(); currentRow++) {
+      var pivot = 0,
+          basePosition = currentRow;
+      while (pivot === 0 && basePosition <= matrix.cols()) {
+        console.warn("pivot: " + pivot + " basePosition: " + basePosition + " currentRow: " + currentRow);
+        pivot = matrix.e(currentRow, basePosition);
+        if (pivot) {
+          console.warn("Pivot found! " + pivot);
+          for (var i = 1; i <= basePosition; i++) {
+            if (i !== currentRow) {
+              for (var j = 1; j <= matrix.cols(); j++) {
+                var elementValue = matrix.e(i, j) - matrix.e(currentRow, j) * (matrix.e(i, basePosition) / matrix.e(currentRow, basePosition));
+                matrix.setElement(i, j, elementValue);
+              }
             }
           }
-        }
-        for (var i = k + 1; i <= matrix.rows(); i++) {
-          matrix.setElement(i, k, 0);
+        } else if (currentRow < matrix.rows()) {
+          // FLAG: Methinks something is wrong in here; requires investigation
+          console.warn("Finding First Nonzero!\n" + matrix.minor(currentRow + 1, basePosition, matrix.rows(), 1).inspect());
+          var currentPosition = spectralCore.matrix.firstNonZero(matrix.minor(currentRow + 1, basePosition, matrix.rows(), 1))[0];
+          console.warn("Results of nonzero search: " + currentPosition);
+          if (currentPosition) {
+            console.warn("Swapping: " + currentRow + " & " + (currentRow + currentPosition));
+            matrix.swapRows(currentRow, currentRow + currentPosition);
+          } else {
+            basePosition += 1;
+          }
+        } else {
+          basePosition += 1;
         }
       }
-      console.warn(matrix.inspect());
     }
     return matrix;
   };

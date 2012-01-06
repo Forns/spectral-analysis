@@ -345,7 +345,7 @@ Matrix.prototype = {
   // Sets the given row of matrix to the given vector
   setRow: function (i, vector) {
     if (vector.dimensions() !== this.elements[i - 1].length) {
-      return matrix;
+      return null;
     }
     var vectorElements = [];
     vector.each(function (x, k) {
@@ -368,7 +368,7 @@ Matrix.prototype = {
   // Sets the given column of matrix to the given vector
   setCol: function (i, vector) {
     if (vector.dimensions() !== this.rows()) {
-      return matrix;
+      return null;
     }
     var vectorElements = [];
     vector.each(function (x, k) {

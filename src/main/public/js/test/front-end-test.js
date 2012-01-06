@@ -182,6 +182,27 @@ $(function () {
     );
   });
   
+  test("firstNonZero", function () {
+    deepEqual(
+      spectralCore.matrix.firstNonZero($M([
+        [0]
+      ])), [0, 0]
+    );
+    
+    deepEqual(
+      spectralCore.matrix.firstNonZero($M([
+        [0, 0, 1]
+      ])), [1, 3]
+    );
+    
+    deepEqual(
+      spectralCore.matrix.firstNonZero($M([
+        [0, 0, 0],
+        [0, 0, 1]
+      ])), [2, 3]
+    );
+  });
+  
   /*
    * Tests for the vector components
    * including the Sylvester objects
@@ -298,18 +319,20 @@ $(function () {
   });
   
   test("gausianElimination", function () {
-    ok(
-      spectralCore.util.gaussianElimination($M([
+    var testGauss1 = spectralCore.util.gaussianElimination($M([
         [1, 1],
         [2, 2]
-      ]))
+      ]));
+    ok(
+      testGauss1
       .eql($M([
         [2, 2],
         [0, 0]
-      ]))
+      ])),
+      "got " + testGauss1.inspect()
     );
     
-    var testGauss = spectralCore.util.gaussianElimination($M([
+    var testGauss2 = spectralCore.util.gaussianElimination($M([
         [2, -3, -1, 2, 3],
         [0, 2, 1, 0, 5],
         [0, -2, -1, 0, -4],

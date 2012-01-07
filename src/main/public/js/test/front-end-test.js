@@ -186,20 +186,20 @@ $(function () {
     deepEqual(
       spectralCore.matrix.firstNonZero($M([
         [0]
-      ])), [0, 0]
+      ])), [0, 0, 0]
     );
     
     deepEqual(
       spectralCore.matrix.firstNonZero($M([
         [0, 0, 1]
-      ])), [1, 3]
+      ])), [1, 3, 1]
     );
     
     deepEqual(
       spectralCore.matrix.firstNonZero($M([
         [0, 0, 0],
         [0, 0, 1]
-      ])), [2, 3]
+      ])), [2, 3, 1]
     );
   });
   
@@ -243,13 +243,75 @@ $(function () {
       spectralCore.util.multiplicities(
         $V([0, 1, -1])
       ), 
-    {"0": 1, "1": 1, "-1": 1});
+    {"0": [1], "1": [2], "-1": [3]});
     
     deepEqual(
       spectralCore.util.multiplicities(
         $V([0, 1, -1, -1, 0])
       ), 
-    {"0": 2, "1": 1, "-1": 2});
+    {"0": [1, 5], "1": [2], "-1": [3, 4]});
+  });
+  
+  test("gausianElimination", function () {
+    ok(
+      spectralCore.util.gaussianElimination($M([
+        [1, 2, 3, 4, 5, 6],
+        [0, 0, 1, 2, 3, 4],
+        [0, 0, 0, 0, 2, 3],
+        [0, 0, 0, 0, 5, 2],
+        [0, 0, 0, 0, 7, 1],
+        [0, 0, 0, 0, 0, 5]
+      ]))
+      .eql($M([
+        [1, 2, 0, 4, 0, 0],
+        [0, 0, 1, 2, 0, 0],
+        [0, 0, 0, 0, 2, 0],
+        [0, 0, 0, 0, 0, 2],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0]
+      ]))
+    );
+  });
+  
+  test("pivotSwap", function () {
+    ok(
+      spectralCore.util.pivotSwap(
+        $M([
+          [0, 0, 0, 0, 3, 15],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 4, 12, 0, 0],
+          [-2, -4, 0, -8, 0, Math.PI]
+        ])).eql($M([
+          [1, 2, 0, 4, 0, -1.5707963267948966],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 1, 3, 0, 0],
+          [0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 1, 5],
+          [0, 0, 0, 0, 0, 0]
+      ]))
+    );
+    
+    ok(
+      spectralCore.util.pivotSwap(
+        spectralCore.util.gaussianElimination($M([
+          [1, 2, 3, 4, 5, 6],
+          [0, 0, 1, 2, 3, 4],
+          [0, 0, 0, 0, 2, 3],
+          [0, 0, 0, 0, 5, 2],
+          [0, 0, 0, 0, 7, 1],
+          [0, 0, 0, 0, 0, 5]
+        ])
+      )).eql($M([
+        [1, 2, 0, 4, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 2, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 1]
+      ]))
+    );
   });
   
   
@@ -318,41 +380,6 @@ $(function () {
     );
   });
   
-  test("gausianElimination", function () {
-    var testGauss1 = spectralCore.util.gaussianElimination($M([
-        [1, 1],
-        [2, 2]
-      ]));
-    ok(
-      testGauss1
-      .eql($M([
-        [2, 2],
-        [0, 0]
-      ])),
-      "got " + testGauss1.inspect()
-    );
-    
-    var testGauss2 = spectralCore.util.gaussianElimination($M([
-        [2, -3, -1, 2, 3],
-        [0, 2, 1, 0, 5],
-        [0, -2, -1, 0, -4],
-        [0, 0, 0, 0, 0],
-        [0, 2, 1, 0, 4]
-      ]));
-    
-    ok(
-      testGauss
-      .eql($M([
-        [2, -3, -1, 2, 3],
-        [0, 2, 1, 0, 5],
-        [0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0]
-      ])),
-      "got " + testGauss.inspect()
-    );
-  });
-  
   test("swapRows", function () {
     ok(
       $M([
@@ -378,6 +405,32 @@ $(function () {
         [5, 5, 5],
         [6, 7, 8]
       ]))
+    );
+  });
+  
+  
+  /***** TESTING SECTION *****/
+  test("testingSection", function() {
+    spectralCore.modules.eig(
+      $M([
+        [1, 2, 3, 4, 5, 6],
+        [0, 5, 0, 2, 1, 3],
+        [0, 0, 5, 1, 2, 3],
+        [0, 0, 0, 1, 2, 1],
+        [0, 0, 0, 0, 3, 1],
+        [0, 0, 0, 0, 0, 1]
+      ])
+    );
+    
+    spectralCore.modules.eig(
+      $M([
+        [1, 2, 3, 4, 5, 6],
+        [0, 1, 0, 2, 1, 3],
+        [0, 0, 1, 1, 2, 3],
+        [0, 0, 0, 3, 2, 1],
+        [0, 0, 0, 0, 5, 1],
+        [0, 0, 0, 0, 0, 5]
+      ])
     );
   });
   

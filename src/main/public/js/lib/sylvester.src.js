@@ -75,7 +75,17 @@ Vector.prototype = {
       fn(this.elements[i], i+1);
     } while (--n);
   },
-
+  
+  // Returns a boolean denoting whether vector is the zero vector
+  isZeroVector: function () {
+    this.each(function (x, i) {
+      if (x) {
+        return true;
+      }
+    });
+    return false;
+  },
+  
   // Returns a new vector created by normalizing the receiver
   toUnitVector: function() {
     var r = this.modulus();
